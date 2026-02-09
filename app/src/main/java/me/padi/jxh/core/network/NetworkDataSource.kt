@@ -17,6 +17,7 @@ import io.ktor.http.contentType
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.core.readBytes
 import io.ktor.utils.io.readRemaining
+import kotlinx.io.readByteArray
 import org.json.JSONObject
 import java.util.Base64
 
@@ -30,7 +31,7 @@ class NetworkDataSource(
         runCatching {
             val response = client.get(imageUrl)
             val channel: ByteReadChannel = response.bodyAsChannel()
-            val bytes = channel.readRemaining().readBytes()
+            val bytes = channel.readRemaining().readByteArray()
             val actualImageType =
                 imageType ?: determineImageType(imageUrl, response.headers[HttpHeaders.ContentType])
             bytesToBase64(bytes, actualImageType)
@@ -50,13 +51,13 @@ class NetworkDataSource(
 
         // 从URL后缀推断
         val lowerUrl = imageUrl.lowercase()
-        when {
-            lowerUrl.endsWith(".jpg") || lowerUrl.endsWith(".jpeg") -> return "jpeg"
-            lowerUrl.endsWith(".png") -> return "png"
-            lowerUrl.endsWith(".gif") -> return "gif"
-            lowerUrl.endsWith(".bmp") -> return "bmp"
-            lowerUrl.endsWith(".webp") -> return "webp"
-            else -> return "jpeg" // 默认值
+        return when {
+            lowerUrl.endsWith(".jpg") || lowerUrl.endsWith(".jpeg") -> "jpeg"
+            lowerUrl.endsWith(".png") -> "png"
+            lowerUrl.endsWith(".gif") -> "gif"
+            lowerUrl.endsWith(".bmp") -> "bmp"
+            lowerUrl.endsWith(".webp") -> "webp"
+            else -> "jpeg" // 默认值
         }
     }
 
@@ -81,7 +82,7 @@ class NetworkDataSource(
             setBody(
                 """
                 {
-                "img":"${base64Image}"
+                "img":"$base64Image"
                 }
             """.trimIndent()
             )
@@ -106,10 +107,6 @@ class NetworkDataSource(
 
     suspend fun getText(url: String): Result<String> = runCatching {
         client.get(url).bodyAsText()
-    }
-
-    suspend fun getResponse(url: String): Result<HttpResponse> = runCatching {
-        client.get(url)
     }
 
     suspend fun postText(

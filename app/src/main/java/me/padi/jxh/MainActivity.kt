@@ -75,7 +75,7 @@ fun App() {
 
             entry(Screen.Course) {
                 CoursePage(
-                    initialWeek = 10, backStack = backStack
+                    backStack = backStack
                 )
             }
 

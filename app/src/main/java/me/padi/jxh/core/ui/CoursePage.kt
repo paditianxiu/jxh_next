@@ -1,6 +1,8 @@
 package me.padi.jxh.core.ui
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -58,25 +60,27 @@ import top.yukonga.miuix.kmp.icon.extended.ChevronForward
 import top.yukonga.miuix.kmp.icon.extended.More
 import top.yukonga.miuix.kmp.icon.extended.VerticalSplit
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import java.time.LocalDate
 import kotlin.math.abs
 
 // 提取行高为常量
-private val ROW_HEIGHT = 80.dp
+private val ROW_HEIGHT = 70.dp
 
 // 周数选择相关常量
 private val MAX_WEEKS = 20
 private val MIN_WEEKS = 1
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CoursePage(
-    initialWeek: Int, backStack: MutableList<NavKey>
+    backStack: MutableList<NavKey>
 ) {
     val viewModel: CourseViewModel = koinViewModel()
-    val currentWeek = remember { mutableStateOf(initialWeek) }
+    val termStartDate = LocalDate.of(2025, 9, 3)
+    val initialCurrentWeek = calculateCurrentWeek(termStartDate)
 
+    val currentWeek = remember { mutableStateOf(initialCurrentWeek) }
     val courseState by viewModel.courseState.collectAsState()
-
     val showLoading = remember { mutableStateOf(true) }
 
     LaunchedEffect(courseState) {
@@ -87,10 +91,20 @@ fun CoursePage(
         viewModel.fetchCourse()
     }
 
-    val table = remember(courseState.getOrNull(), currentWeek.value) {
-        parseCourseTable(courseState.getOrNull() ?: "", currentWeek.value)
+    // 解析所有课程数据
+    val allCourses = remember(courseState.getOrNull()) {
+        parseAllCourses(courseState.getOrNull() ?: "")
     }
-    val weeks = listOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
+
+    // 根据当前周筛选和排列课程
+    val table = remember(allCourses, currentWeek.value) {
+        arrangeCoursesByWeek(allCourses, currentWeek.value)
+    }
+
+    // 计算当前周的日期列表
+    val weekDates = remember(currentWeek.value) {
+        getWeekDates(currentWeek.value, termStartDate)
+    }
 
     Scaffold(
         topBar = {
@@ -116,8 +130,6 @@ fun CoursePage(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-
-
             // 显示当前周数信息
             WeekInfoBar(
                 currentWeek = currentWeek.value,
@@ -128,35 +140,13 @@ fun CoursePage(
             Spacer(modifier = Modifier.height(8.dp))
 
             // 周数标题行
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Box(
-                    modifier = Modifier.width(50.dp), contentAlignment = Alignment.Center
-                ) {
-                    Text("节次", fontSize = 12.sp, color = Color.Gray)
-                }
-
-                val weekWidth = calculateWeekItemWidth()
-                weeks.forEach { week ->
-                    Box(
-                        modifier = Modifier.width(weekWidth), contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = week,
-                            textAlign = TextAlign.Center,
-                            fontSize = 12.sp,
-                            color = Color.Gray,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            }
+            WeekDateHeader(
+                currentWeek = currentWeek.value, weekDates = weekDates
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            CoursePage(table)
+            CourseContent(table, currentWeek.value)
 
             WindowDialog(
                 title = "提示",
@@ -175,6 +165,132 @@ fun CoursePage(
                 }
             }
         }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun calculateCurrentWeek(termStartDate: LocalDate): Int {
+    val today = LocalDate.now()
+    val daysBetween = java.time.temporal.ChronoUnit.DAYS.between(termStartDate, today)
+    val currentWeek = (daysBetween / 7).toInt() + 1
+    return maxOf(1, currentWeek)
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun WeekDateHeader(
+    currentWeek: Int, weekDates: List<String>
+) {
+    val weekWidth = calculateWeekItemWidth()
+    val weeks = listOf("一", "二", "三", "四", "五", "六", "日")
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // 第一行：星期
+        Row(
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Box(
+                modifier = Modifier.width(25.dp), contentAlignment = Alignment.Center
+            ) {
+                Text("抚州", fontSize = 12.sp, color = Color.Gray)
+            }
+
+            weeks.forEach { week ->
+                Box(
+                    modifier = Modifier.width(weekWidth), contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = week,
+                        textAlign = TextAlign.Center,
+                        fontSize = 16.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        val month = if (weekDates.isNotEmpty()) {
+            val mondayDate = LocalDate.parse(weekDates[0])
+            mondayDate.monthValue
+        } else {
+            LocalDate.now().monthValue
+        }
+        // 第二行：日期
+        Row(
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Box(
+                modifier = Modifier.width(25.dp), contentAlignment = Alignment.Center
+            ) {
+                Text("${month}月", fontSize = 12.sp, color = Color.LightGray)
+            }
+
+            weekDates.forEachIndexed { index, date ->
+                Box(
+                    modifier = Modifier.width(weekWidth), contentAlignment = Alignment.Center
+                ) {
+                    val formattedDate = formatDateForDisplay(date)
+                    val dateColor = if (isToday(date)) {
+                        MiuixTheme.colorScheme.primary
+                    } else {
+                        Color.Gray
+                    }
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = formattedDate,
+                            textAlign = TextAlign.Center,
+                            fontSize = 12.sp,
+                            color = dateColor,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        if (isToday(date)) {
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Box(
+                                modifier = Modifier
+                                    .width(4.dp)
+                                    .height(4.dp)
+                                    .clip(RoundedCornerShape(2.dp))
+                                    .background(Color(0xFF1976D2))
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun formatDateForDisplay(dateStr: String): String {
+    return try {
+        if (isToday(dateStr)) {
+            return "今天"
+        }
+        val date = LocalDate.parse(dateStr)
+        val day = date.dayOfMonth
+        "${day}日"
+    } catch (_: Exception) {
+        dateStr
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun isToday(dateStr: String): Boolean {
+    return try {
+        val date = LocalDate.parse(dateStr)
+        val today = LocalDate.now()
+        date == today
+    } catch (_: Exception) {
+        false
     }
 }
 
@@ -208,7 +324,8 @@ fun WeekInfoBar(
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color(0xFFE3F2FD))
                 .clickable { showWeekSelector.value = true }
-                .padding(horizontal = 16.dp, vertical = 8.dp)) {
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
             Text(
                 text = "第 $currentWeek 周",
                 fontSize = 16.sp,
@@ -229,7 +346,6 @@ fun WeekInfoBar(
         }
     }
 
-
     WindowBottomSheet(
         onDismissRequest = { showWeekSelector.value = false },
         title = "选择周数",
@@ -241,8 +357,17 @@ fun WeekInfoBar(
                 showWeekSelector.value = false
             })
     }
+}
 
-
+@RequiresApi(Build.VERSION_CODES.O)
+fun getWeekDates(weekNumber: Int, termStartDate: LocalDate): List<String> {
+    val currentWeekMonday = termStartDate.plusWeeks((weekNumber - 1).toLong())
+    val weekDates = mutableListOf<String>()
+    for (i in 0 until 7) {
+        val date = currentWeekMonday.plusDays(i.toLong())
+        weekDates.add(date.toString())
+    }
+    return weekDates
 }
 
 @Composable
@@ -274,28 +399,10 @@ fun WeekSelector(
 }
 
 @Composable
-fun WeekItem(
-    week: Int, isSelected: Boolean, onClick: () -> Unit
+fun CourseContent(
+    table: List<List<List<CourseCell>>>,
+    currentWeek: Int
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(4.dp))
-            .background(if (isSelected) Color(0xFFE3F2FD) else Color.Transparent)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-    ) {
-        Text(
-            text = "第 $week 周",
-            fontSize = 16.sp,
-            color = if (isSelected) Color(0xFF1976D2) else Color.Black,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-        )
-    }
-}
-
-@Composable
-fun CoursePage(table: List<List<List<CourseCell>>>) {
     val times = listOf(
         TimeSlot(1, "09:00", "09:40"),
         TimeSlot(2, "09:45", "10:25"),
@@ -307,17 +414,30 @@ fun CoursePage(table: List<List<List<CourseCell>>>) {
         TimeSlot(8, "15:50", "16:30")
     )
 
+    // 对每个时间段、每个星期的课程进行去重处理，只保留离今天最近的课程
+    val filteredTable = remember(table, currentWeek) {
+        table.map { timeSlot ->
+            timeSlot.map { dayCourses ->
+                if (dayCourses.size > 1) {
+                    // 找出离今天最近的课程
+                    val nearestCourse = findNearestCourse(dayCourses, currentWeek)
+                    listOf(nearestCourse)
+                } else {
+                    dayCourses
+                }
+            }
+        }
+    }
+
     val selectedCourse = remember { mutableStateOf<CourseCell?>(null) }
     val scrollState = rememberScrollState()
-
-    // 整个课程表的高度
     val totalHeight = ROW_HEIGHT * 8
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(totalHeight)
-            .verticalScroll(scrollState)  // 添加垂直滚动
+            .verticalScroll(scrollState)
     ) {
         // 先绘制所有行的时间信息
         repeat(8) { timeSlotIndex ->
@@ -326,16 +446,18 @@ fun CoursePage(table: List<List<List<CourseCell>>>) {
             )
         }
 
-        // 再绘制所有课程（使用绝对定位）
+        // 再绘制所有课程（使用过滤后的表格）
         for (timeSlot in 0 until 8) {
             for (day in 0 until 7) {
-                if (table.isNotEmpty()) {
-                    val courses = table[timeSlot][day]
+                if (filteredTable.isNotEmpty()) {
+                    val courses = filteredTable[timeSlot][day]
                     courses.forEach { course ->
                         CourseItem(
                             course = course,
                             day = day,
-                            onCourseClick = { selectedCourse.value = it })
+                            currentWeek = currentWeek,
+                            onCourseClick = { selectedCourse.value = it }
+                        )
                     }
                 }
             }
@@ -382,6 +504,59 @@ fun CoursePage(table: List<List<List<CourseCell>>>) {
     }
 }
 
+
+/**
+ * 找出离当前周最近的课程
+ * 优先级：
+ * 1. 包含当前周的课程（本周课程）
+ * 2. 离当前周最近的未来课程
+ * 3. 离当前周最近的过去课程
+ * 4. 按周数排序的第一个课程
+ */
+fun findNearestCourse(courses: List<CourseCell>, currentWeek: Int): CourseCell {
+    if (courses.isEmpty()) return courses.first()
+
+    // 1. 找出包含当前周的课程
+    val currentWeekCourses = courses.filter { it.weeks.contains(currentWeek) }
+    if (currentWeekCourses.isNotEmpty()) {
+        // 如果有多个本周课程，按课程名称排序取第一个
+        return currentWeekCourses.minByOrNull { it.name }!!
+    }
+
+    // 2. 找出离当前周最近的未来课程
+    val futureCourses = courses.mapNotNull { course ->
+        val futureWeeks = course.weeks.filter { it > currentWeek }
+        if (futureWeeks.isNotEmpty()) {
+            val nearestWeek = futureWeeks.minOrNull()
+            course to nearestWeek
+        } else {
+            null
+        }
+    }.sortedBy { it.second } // 按最近的未来周排序
+
+    if (futureCourses.isNotEmpty()) {
+        return futureCourses.first().first
+    }
+
+    // 3. 找出离当前周最近的过去课程
+    val pastCourses = courses.mapNotNull { course ->
+        val pastWeeks = course.weeks.filter { it < currentWeek }
+        if (pastWeeks.isNotEmpty()) {
+            val nearestWeek = pastWeeks.maxOrNull() // 过去课程取最大的（最近的过去）
+            course to nearestWeek
+        } else {
+            null
+        }
+    }.sortedByDescending { it.second } // 按最近的过去周排序
+
+    if (pastCourses.isNotEmpty()) {
+        return pastCourses.first().first
+    }
+
+    // 4. 按周数排序取第一个课程
+    return courses.minByOrNull { it.weeks.minOrNull() ?: Int.MAX_VALUE } ?: courses.first()
+}
+
 @Composable
 fun TimeRow(
     timeInfo: TimeSlot, rowIndex: Int
@@ -399,23 +574,23 @@ fun TimeRow(
         // 左侧时间信息
         Column(
             modifier = Modifier
-                .width(50.dp)
+                .width(25.dp)
                 .fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "第${timeInfo.id}节", fontSize = 12.sp, fontWeight = FontWeight.Bold
+                text = timeInfo.id.toString(), fontSize = 12.sp, fontWeight = FontWeight.Bold
             )
             Text(
-                text = timeInfo.startTime, fontSize = 10.sp, color = Color.Gray
+                text = timeInfo.startTime, fontSize = 8.sp, color = Color.Gray
             )
             Text(
-                text = timeInfo.endTime, fontSize = 10.sp, color = Color.Gray
+                text = timeInfo.endTime, fontSize = 8.sp, color = Color.Gray
             )
         }
 
-        // 一周的课程（7天）- 这里只绘制空的列作为背景
+        // 一周的课程
         repeat(7) { _ ->
             Box(
                 modifier = Modifier
@@ -428,20 +603,24 @@ fun TimeRow(
 
 @Composable
 fun CourseItem(
-    course: CourseCell, day: Int,  // 星期几，0-6
+    course: CourseCell,
+    day: Int,
+    currentWeek: Int,
     onCourseClick: (CourseCell) -> Unit
 ) {
     val weekWidth = calculateWeekItemWidth()
 
-    // 课程的开始行位置（基于0）
-    val startRow = course.start - 1
-    // 课程跨越的行数
-    val span = course.end - course.start + 1
+    // 判断是否为本周课程
+    val isCurrentWeek = course.weeks.contains(currentWeek)
 
-    // 计算位置
-    val x = 50.dp + weekWidth * day + 8.dp * (day + 1)  // 50dp是时间列宽度，8dp是间距
+    // 课程的开始行位置
+    val startRow = course.start - 1
+    val span = course.end - course.start + 1
+    val x = 25.dp + weekWidth * day + 8.dp * (day + 1)
     val y = ROW_HEIGHT * startRow
     val height = ROW_HEIGHT * span
+
+    val backgroundColor = if (isCurrentWeek) getCourseColor(course.name) else Color.LightGray
 
     Box(
         modifier = Modifier
@@ -449,11 +628,20 @@ fun CourseItem(
             .width(weekWidth)
             .height(height - 10.dp)
             .clip(RoundedCornerShape(4.dp))
-            .background(getCourseColor(course.name))
+            .background(backgroundColor)
             .clickable { onCourseClick(course) }
             .padding(horizontal = 4.dp, vertical = 4.dp),
     ) {
         Column {
+            if (!isCurrentWeek) {
+                Text(
+                    "[非本周]",
+                    fontSize = 8.sp,
+                    color = Color.Yellow,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            }
             Text(
                 text = course.name,
                 fontSize = 10.sp,
@@ -466,21 +654,22 @@ fun CourseItem(
             Text(
                 text = course.room,
                 fontSize = 8.sp,
-                color = Color.White.copy(alpha = 0.9f),
+                color = Color.White,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth()
             )
-            // 如果是跨节课程，显示节数信息
             if (span > 1) {
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = course.teacher,
                     fontSize = 8.sp,
-                    color = Color.White.copy(alpha = 0.8f),
+                    color = Color.White,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+
         }
+
     }
 }
 
@@ -505,22 +694,20 @@ fun DetailItem(
     }
 }
 
-// 根据课程名称生成颜色（简单的hash算法）
 fun getCourseColor(courseName: String): Color {
     val colors = listOf(
-        Color(0xFF4CAF50), // 绿色
-        Color(0xFF4CAF50), // 绿色
-        Color(0xFF2196F3), // 蓝色
-        Color(0xFF9C27B0), // 紫色
-        Color(0xFFF44336), // 红色
-        Color(0xFFFF9800), // 橙色
-        Color(0xFF607D8B), // 蓝色灰色
-        Color(0xFF795548), // 棕色
-        Color(0xFF00BCD4), // 青色
-        Color(0xFF3F51B5), // 靛蓝
-        Color(0xFFE91E63)  // 粉色
+        Color(0xFF4CAF50),
+        Color(0xFF4CAF50),
+        Color(0xFF2196F3),
+        Color(0xFF9C27B0),
+        Color(0xFFF44336),
+        Color(0xFFFF9800),
+        Color(0xFF607D8B),
+        Color(0xFF795548),
+        Color(0xFF00BCD4),
+        Color(0xFF3F51B5),
+        Color(0xFFE91E63)
     )
-
     val hash = courseName.hashCode()
     val index = abs(hash) % colors.size
     return colors[index]
@@ -531,10 +718,8 @@ fun getCourseColor(courseName: String): Color {
 fun calculateWeekItemWidth(): Dp {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp
-    // 计算：屏幕宽度 - 左右padding(32dp) - 左侧时间列(50dp) - 列间距(8dp * 6 = 48dp)
-    val totalWidthDp = screenWidthDp - 32 - 50 - 48
+    val totalWidthDp = screenWidthDp - 32 - 25 - 48
     val itemWidthDp = totalWidthDp / 7
-
     return with(LocalDensity.current) {
         itemWidthDp.dp
     }
@@ -545,26 +730,27 @@ data class TimeSlot(
 )
 
 data class CourseCell(
-    val name: String, val room: String, var teacher: String, val weeks: List<Int>,  // 整数列表
-    val start: Int,  // 开始节次
-    val end: Int     // 结束节次
+    val name: String,
+    val room: String,
+    var teacher: String,
+    val weeks: List<Int>,
+    val day: Int,        // 星期几，0-6
+    val start: Int,
+    val end: Int
 )
 
-fun parseCourseTable(json: String, currentWeek: Int): List<List<List<CourseCell>>> {
+// 解析所有课程数据
+fun parseAllCourses(json: String): List<CourseCell> {
+    val courses = mutableListOf<CourseCell>()
+
     runCatching {
         val root = JSONObject(json)
         val kbArray = root.optJSONArray("kbList") ?: JSONArray()
 
-        // 8个时间段，7天，每格可能有多个课程
-        val table = MutableList(8) {
-            MutableList(7) {
-                mutableListOf<CourseCell>()
-            }
-        }
-
         for (i in 0 until kbArray.length()) {
             val item = kbArray.optJSONObject(i) ?: continue
 
+            // 从"xqj"字段获取星期信息（1-7转换为0-6）
             val day = item.optString("xqj").toIntOrNull()?.minus(1) ?: continue
             val jcs = item.optString("jcs")
             val name = item.optString("kcmc")
@@ -572,47 +758,70 @@ fun parseCourseTable(json: String, currentWeek: Int): List<List<List<CourseCell>
             val weeksStr = item.optString("zcd")
             val teacher = item.optString("xm")
 
-
-            // 解析周数字符串为整数列表
+            // 解析周数字符串
             val weeks = parseWeeks(weeksStr)
 
-            // 检查当前周是否在课程周数内
-            if (!weeks.contains(currentWeek)) continue
-
+            // 解析节次范围
             val range = jcs.split("-")
             if (range.size != 2) continue
 
             val start = range[0].toIntOrNull() ?: continue
             val end = range[1].toIntOrNull() ?: continue
 
-            // 将课程添加到它开始的那一节
-            val startIndex = start - 1
-            if (startIndex in 0..7 && day in 0..6) {
-                table[startIndex][day].add(
-                    CourseCell(name, room,teacher, weeks, start, end)
+            courses.add(
+                CourseCell(
+                    name = name,
+                    room = room,
+                    teacher = teacher,
+                    weeks = weeks,
+                    day = day,
+                    start = start,
+                    end = end
                 )
-            }
+            )
         }
-
-        return table
     }.getOrElse {
-        return emptyList()
+        // 解析出错时返回空列表
     }
+
+    return courses
+}
+
+// 根据当前周排列课程
+fun arrangeCoursesByWeek(
+    allCourses: List<CourseCell>,
+    currentWeek: Int
+): List<List<List<CourseCell>>> {
+    // 8个时间段，7天，每格可能有多个课程
+    val table = MutableList(8) {
+        MutableList(7) {
+            mutableListOf<CourseCell>()
+        }
+    }
+
+    // 将所有课程添加到表格中
+    for (course in allCourses) {
+        // 课程会显示在对应的星期和节次位置
+        val startIndex = course.start - 1
+        val day = course.day
+
+        if (startIndex in 0..7 && day in 0..6) {
+            table[startIndex][day].add(course)
+        }
+    }
+
+    return table
 }
 
 // 解析周数字符串为整数列表
 fun parseWeeks(weeksStr: String): List<Int> {
     val result = mutableListOf<Int>()
-
-    // 按逗号分割不同的周数段
     val segments = weeksStr.split(",").map { it.trim() }
 
     for (segment in segments) {
-        // 移除可能的"周"字
         val cleanSegment = segment.replace("周", "")
 
         if (cleanSegment.contains("-")) {
-            // 处理范围，如"3-10周"或"3-10"
             val rangeParts = cleanSegment.split("-")
             if (rangeParts.size == 2) {
                 val start = rangeParts[0].toIntOrNull()
@@ -622,7 +831,6 @@ fun parseWeeks(weeksStr: String): List<Int> {
                 }
             }
         } else if (cleanSegment.contains("(")) {
-            // 处理特殊格式，如"4-6周(双)" - 双周
             val mainPart = cleanSegment.substringBefore("(")
             val flag = cleanSegment.substringAfter("(").substringBefore(")")
 
@@ -643,7 +851,6 @@ fun parseWeeks(weeksStr: String): List<Int> {
                 }
             }
         } else {
-            // 处理单个周数
             val week = cleanSegment.toIntOrNull()
             if (week != null) {
                 result.add(week)
@@ -652,10 +859,4 @@ fun parseWeeks(weeksStr: String): List<Int> {
     }
 
     return result.distinct().sorted()
-}
-
-// 保留原来的 matchWeek 函数作为兼容
-fun matchWeek(zcd: String, week: Int): Boolean {
-    val weeks = parseWeeks(zcd)
-    return weeks.contains(week)
 }
