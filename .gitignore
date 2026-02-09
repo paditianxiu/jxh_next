@@ -1,0 +1,27 @@
+# Android Studio 项目文件
+*.iml
+.gradle
+.idea/
+local.properties
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+
+# 构建输出
+app/build/
+*.apk
+*.aab
+*.ap_
+*.aar
+
+# 生成的文件
+*.keystore
+*.jks
+
+# 本地配置
+/local.properties
+
+# Gradle 缓存
+.gradle/caches/
