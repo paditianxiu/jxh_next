@@ -52,7 +52,6 @@ import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import me.padi.jxh.Screen
 import me.padi.jxh.core.model.LoginViewModel
-import me.padi.jxh.core.network.ApiClient
 import me.padi.jxh.data.repository.ClassParams
 import org.koin.androidx.compose.koinViewModel
 import top.yukonga.miuix.kmp.basic.Card
@@ -222,7 +221,7 @@ fun SettingsPage(backStack: MutableList<NavKey>) {
                 SuperArrow(startAction = {
                     Icon(Icons.Default.CalendarMonth, null)
                 }, title = "课程表设置", onClick = {
-
+                    backStack.add(Screen.CourseSetting)
                 })
             }
 
@@ -383,13 +382,14 @@ fun DropdownItem(
     val additionalTopPadding = if (index == 0) 20f.dp else 12f.dp
     val additionalBottomPadding = if (index == optionSize - 1) 20f.dp else 12f.dp
 
-    Row(modifier = Modifier
-        .clickable { currentOnSelectedIndexChange.value(index) }
-        .background(dropdownColors.containerColor)
-        .padding(horizontal = 20.dp)
-        .padding(
-            top = additionalTopPadding, bottom = additionalBottomPadding
-        ), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier
+            .clickable { currentOnSelectedIndexChange.value(index) }
+            .background(dropdownColors.containerColor)
+            .padding(horizontal = 20.dp)
+            .padding(
+                top = additionalTopPadding, bottom = additionalBottomPadding
+            ), verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = text,
             fontSize = MiuixTheme.textStyles.body1.fontSize,

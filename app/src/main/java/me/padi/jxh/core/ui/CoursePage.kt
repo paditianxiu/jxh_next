@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.NavKey
+import me.padi.jxh.core.common.DateStorage
 import me.padi.jxh.core.model.CourseViewModel
 import me.padi.jxh.data.repository.ClassParams
 import me.padi.jxh.data.repository.isEmpty
@@ -84,7 +85,7 @@ fun CoursePage(
     params: ClassParams, backStack: MutableList<NavKey>
 ) {
     val viewModel: CourseViewModel = koinViewModel()
-    val termStartDate = LocalDate.of(2025, 9, 3)
+    val termStartDate = DateStorage.getDate()
     val initialCurrentWeek = calculateCurrentWeek(termStartDate)
 
     val currentWeek = remember { mutableStateOf(initialCurrentWeek) }

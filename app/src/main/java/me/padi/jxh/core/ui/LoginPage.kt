@@ -30,11 +30,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation3.runtime.NavKey
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.delay
 import me.padi.jxh.R
+import me.padi.jxh.Screen
 import me.padi.jxh.core.model.LoginViewModel
-import me.padi.jxh.core.network.ApiClient
 import org.koin.androidx.compose.koinViewModel
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
@@ -57,7 +58,7 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.utils.overScrollVertical
 
 @Composable
-fun LoginPage(onNavHome: () -> Unit) {
+fun LoginPage(backStack: MutableList<NavKey>) {
     var username by remember { mutableStateOf(MMKV.defaultMMKV().decodeString("username") ?: "") }
     var password by remember { mutableStateOf(MMKV.defaultMMKV().decodeString("password") ?: "") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -66,6 +67,11 @@ fun LoginPage(onNavHome: () -> Unit) {
     val loginState by viewModel.loginState.collectAsState()
 
     val showError = remember { mutableStateOf(false) }
+
+    fun onNavHome() {
+        backStack.clear()
+        backStack.add(Screen.Home)
+    }
 
     LaunchedEffect(loginState) {
         if (loginState.isSuccess()) {
@@ -208,15 +214,15 @@ fun LoginPage(onNavHome: () -> Unit) {
                     }
                     Text("登录", color = MiuixTheme.colorScheme.onPrimary)
                 }
-//                Spacer(modifier = Modifier.height(8.dp))
-//                Button(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    onClick = {
-//                        ApiClient.cookieStorage.clear()
-//                    },
-//                ) {
-//                    Text("进入主页")
-//                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        backStack.add(Screen.CourseSetting)
+                    },
+                ) {
+                    Text("进入主页")
+                }
             }
         }
     }
