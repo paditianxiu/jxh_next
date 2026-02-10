@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -40,13 +42,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.NavKey
 import me.padi.jxh.core.model.CourseViewModel
+import me.padi.jxh.data.repository.ClassParams
+import me.padi.jxh.data.repository.isEmpty
 import org.json.JSONArray
 import org.json.JSONObject
 import org.koin.androidx.compose.koinViewModel
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.InfiniteProgressIndicator
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.SmallTopAppBar
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
@@ -60,6 +67,7 @@ import top.yukonga.miuix.kmp.icon.extended.ChevronForward
 import top.yukonga.miuix.kmp.icon.extended.More
 import top.yukonga.miuix.kmp.icon.extended.VerticalSplit
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.utils.PressFeedbackType
 import java.time.LocalDate
 import kotlin.math.abs
 
@@ -73,7 +81,7 @@ private val MIN_WEEKS = 1
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CoursePage(
-    backStack: MutableList<NavKey>
+    params: ClassParams, backStack: MutableList<NavKey>
 ) {
     val viewModel: CourseViewModel = koinViewModel()
     val termStartDate = LocalDate.of(2025, 9, 3)
@@ -88,12 +96,23 @@ fun CoursePage(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.fetchCourse()
+        if (params.isEmpty()) {
+            viewModel.fetchCourse()
+        } else {
+            viewModel.fetchClassCourse(params)
+        }
     }
 
     // 解析所有课程数据
     val allCourses = remember(courseState.getOrNull()) {
         parseAllCourses(courseState.getOrNull() ?: "")
+    }
+    val practiceList = remember(courseState.getOrNull()) {
+        if (params.isEmpty()) {
+            emptyList()
+        } else {
+            parsePracticeList(courseState.getOrNull() ?: "")
+        }
     }
 
     // 根据当前周筛选和排列课程
@@ -124,48 +143,93 @@ fun CoursePage(
                 Spacer(Modifier.width(4.dp))
             })
         }) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            // 显示当前周数信息
-            WeekInfoBar(
-                currentWeek = currentWeek.value,
-                onWeekChange = { week -> currentWeek.value = week },
-                maxWeeks = MAX_WEEKS
-            )
+            item {
+                // 显示当前周数信息
+                WeekInfoBar(
+                    currentWeek = currentWeek.value,
+                    onWeekChange = { week -> currentWeek.value = week },
+                    maxWeeks = MAX_WEEKS
+                )
+                if (practiceList.size != 0) {
+                    SmallTitle("实训课程(共${practiceList.size}门)")
+                    Card(
+                        modifier = Modifier.fillMaxWidth(), insideMargin = PaddingValues(16.dp),
+                        colors = CardDefaults.defaultColors(
+                            color = MiuixTheme.colorScheme.primaryVariant
+                        ),
+                        pressFeedbackType = PressFeedbackType.Sink,
+                        showIndication = true,
+                    ) {
+                        practiceList.forEachIndexed { index, name ->
+                            Text(
+                                "${index + 1}.$name",
+                                modifier = Modifier.padding(4.dp),
+                                style = MiuixTheme.textStyles.subtitle,
+                                color = MiuixTheme.colorScheme.onPrimary
+                            )
+                            Spacer(Modifier.height(4.dp))
+                        }
+                    }
+                }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            // 周数标题行
-            WeekDateHeader(
-                currentWeek = currentWeek.value, weekDates = weekDates
-            )
+                // 周数标题行
+                WeekDateHeader(
+                    currentWeek = currentWeek.value, weekDates = weekDates
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            CourseContent(table, currentWeek.value)
+                CourseContent(table, currentWeek.value)
 
-            WindowDialog(
-                title = "提示",
-                summary = "课表正在极速获取中...",
-                show = showLoading,
-                onDismissRequest = { }) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    InfiniteProgressIndicator(size = 20.dp)
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = "加载中...", color = MiuixTheme.colorScheme.onSurfaceContainerVariant
-                    )
+                WindowDialog(
+                    title = "提示",
+                    summary = "课表正在极速获取中...",
+                    show = showLoading,
+                    onDismissRequest = { }) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        InfiniteProgressIndicator(size = 20.dp)
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = "加载中...",
+                            color = MiuixTheme.colorScheme.onSurfaceContainerVariant
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+fun parsePracticeList(jsonString: String): List<String> {
+    val result = mutableListOf<String>()
+    try {
+        val json = JSONObject(jsonString)
+        val jsonArray = json.optJSONArray("sjkList")
+        if (jsonArray != null) {
+            for (i in 0 until jsonArray.length()) {
+                val item = jsonArray.optJSONObject(i)
+                val name = item?.optString("qtkcgs", "")
+                if (name?.isNotBlank() ?: false) {
+                    result.add(name)
+                }
+            }
+
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+    return result
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -324,8 +388,7 @@ fun WeekInfoBar(
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color(0xFFE3F2FD))
                 .clickable { showWeekSelector.value = true }
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
+                .padding(horizontal = 16.dp, vertical = 8.dp)) {
             Text(
                 text = "第 $currentWeek 周",
                 fontSize = 16.sp,
@@ -400,8 +463,7 @@ fun WeekSelector(
 
 @Composable
 fun CourseContent(
-    table: List<List<List<CourseCell>>>,
-    currentWeek: Int
+    table: List<List<List<CourseCell>>>, currentWeek: Int
 ) {
     val times = listOf(
         TimeSlot(1, "09:00", "09:40"),
@@ -456,8 +518,7 @@ fun CourseContent(
                             course = course,
                             day = day,
                             currentWeek = currentWeek,
-                            onCourseClick = { selectedCourse.value = it }
-                        )
+                            onCourseClick = { selectedCourse.value = it })
                     }
                 }
             }
@@ -603,10 +664,7 @@ fun TimeRow(
 
 @Composable
 fun CourseItem(
-    course: CourseCell,
-    day: Int,
-    currentWeek: Int,
-    onCourseClick: (CourseCell) -> Unit
+    course: CourseCell, day: Int, currentWeek: Int, onCourseClick: (CourseCell) -> Unit
 ) {
     val weekWidth = calculateWeekItemWidth()
 
@@ -754,7 +812,7 @@ fun parseAllCourses(json: String): List<CourseCell> {
             val day = item.optString("xqj").toIntOrNull()?.minus(1) ?: continue
             val jcs = item.optString("jcs")
             val name = item.optString("kcmc")
-            val room = item.optString("cdbh")
+            val room = item.optString("cdmc")
             val weeksStr = item.optString("zcd")
             val teacher = item.optString("xm")
 
@@ -789,8 +847,7 @@ fun parseAllCourses(json: String): List<CourseCell> {
 
 // 根据当前周排列课程
 fun arrangeCoursesByWeek(
-    allCourses: List<CourseCell>,
-    currentWeek: Int
+    allCourses: List<CourseCell>, currentWeek: Int
 ): List<List<List<CourseCell>>> {
     // 8个时间段，7天，每格可能有多个课程
     val table = MutableList(8) {

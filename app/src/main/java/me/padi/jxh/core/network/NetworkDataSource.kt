@@ -4,7 +4,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.FormDataContent
+import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
+import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -15,7 +17,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.Parameters
 import io.ktor.http.contentType
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.core.readBytes
 import io.ktor.utils.io.readRemaining
 import kotlinx.io.readByteArray
 import org.json.JSONObject
@@ -120,6 +121,21 @@ class NetworkDataSource(
             )
         }
         response.bodyAsText()
+    }
+
+    suspend fun postFormData(url: String, formData: Map<String, String>): Result<String> {
+        return runCatching {
+            val response = client.submitForm(
+                url = url,
+                formParameters = Parameters.build {
+                    formData.forEach { (key, value) ->
+                        append(key, value)
+                    }
+                },
+                encodeInQuery = false
+            )
+            response.bodyAsText()
+        }
     }
 }
 

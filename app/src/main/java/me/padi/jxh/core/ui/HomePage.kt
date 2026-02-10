@@ -52,6 +52,7 @@ import coil3.compose.AsyncImage
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.launch
 import me.padi.jxh.Screen
+import me.padi.jxh.data.repository.ClassParams
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.DropdownColors
 import top.yukonga.miuix.kmp.basic.DropdownDefaults
@@ -180,7 +181,7 @@ fun HomeMainPage(backStack: MutableList<NavKey>) {
                 StudyCard(
                     Icons.Default.Token, "个人课表", "今天上什么课，我知道", Modifier.weight(1f)
                 ) {
-                    backStack.add(Screen.Course)
+                    backStack.add(Screen.Course(ClassParams()))
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -190,7 +191,9 @@ fun HomeMainPage(backStack: MutableList<NavKey>) {
                     "班级课表",
                     "用来查询其他班级的课程安排",
                     Modifier.weight(1f)
-                ) {}
+                ) {
+                    backStack.add(Screen.ClassList)
+                }
                 Spacer(Modifier.width(16.dp))
                 StudyCard(
                     Icons.Default.Map, "江航地图", "学校地图概况，一览众山小", Modifier.weight(1f)

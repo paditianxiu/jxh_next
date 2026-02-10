@@ -11,6 +11,7 @@ local.properties
 
 # 构建输出
 app/build/
+app/release/
 *.apk
 *.aab
 *.ap_

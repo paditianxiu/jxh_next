@@ -16,11 +16,13 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import jnu.kulipai.exam.ui.screens.egg.EmojiEasterEggPage
 import me.padi.jxh.core.ui.AboutPage
+import me.padi.jxh.core.ui.ClassListPage
 import me.padi.jxh.core.ui.CoursePage
 import me.padi.jxh.core.ui.HomePage
 import me.padi.jxh.core.ui.LoginPage
 import me.padi.jxh.core.ui.MapPage
 import me.padi.jxh.core.ui.ScorePage
+import me.padi.jxh.data.repository.ClassParams
 import me.padi.jxh.ui.theme.Theme
 
 class MainActivity : ComponentActivity() {
@@ -42,11 +44,11 @@ sealed interface Screen : NavKey {
     data object Login : Screen
     data object Score : Screen
     data object Home : Screen
-    data object Course : Screen
     data object Map : Screen
     data object Egg : Screen
     data object About : Screen
-    data class Detail(val id: String) : Screen
+    data object ClassList : Screen
+    data class Course(val params: ClassParams) : Screen
 }
 
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -65,19 +67,23 @@ fun App() {
             entry(Screen.Home) {
                 HomePage(backStack)
             }
-            entry(Screen.Egg){
+            entry(Screen.Egg) {
                 EmojiEasterEggPage()
             }
-
+            entry(Screen.ClassList) {
+                ClassListPage(backStack)
+            }
             entry(Screen.About) {
                 AboutPage(backStack)
             }
 
-            entry(Screen.Course) {
+
+            entry<Screen.Course> { screen ->
                 CoursePage(
-                    backStack = backStack
+                    screen.params, backStack
                 )
             }
+
 
             entry(Screen.Map) {
                 MapPage {
@@ -86,7 +92,6 @@ fun App() {
                     }
                 }
             }
-
             entry<Screen.Score> {
                 ScorePage {
                     if (backStack.isNotEmpty()) {
