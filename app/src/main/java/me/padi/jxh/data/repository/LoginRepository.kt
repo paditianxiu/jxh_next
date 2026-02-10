@@ -55,7 +55,6 @@ open class LoginRepository(private val network: NetworkDataSource) {
         return runCatching {
             val time = System.currentTimeMillis().toString()
             network.getText(Api.LOGOUT_URL + time).getOrThrow()
-            ApiClient.cookieStorage.clear()
             true
         }.getOrElse {
             false

@@ -5,12 +5,13 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import me.padi.jxh.core.common.d
+import me.padi.jxh.core.network.ApiClient
 import me.padi.jxh.core.network.NetworkState
 import me.padi.jxh.data.repository.LoginRepository
 
 class LoginViewModel(
     private val loginRepository: LoginRepository,
+    private val apiClient: ApiClient
 ) : ViewModel() {
 
     private val _loginState = MutableStateFlow<NetworkState<String>>(NetworkState.Idle)
@@ -19,6 +20,7 @@ class LoginViewModel(
 
     fun login(userName: String, password: String) {
         viewModelScope.launch {
+            apiClient.clearCookies()
             setLoading()
             _loginState.value = loginRepository.login(userName, password)
 
@@ -29,7 +31,7 @@ class LoginViewModel(
     fun logout() {
         viewModelScope.launch {
             loginRepository.logout()
-
+            apiClient.clearCookies()
         }
     }
 

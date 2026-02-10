@@ -1,5 +1,7 @@
 package me.padi.jxh.core.di
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import me.padi.jxh.core.model.ClassListViewModel
 import me.padi.jxh.core.model.CourseViewModel
 import me.padi.jxh.core.model.LoginViewModel
@@ -9,13 +11,13 @@ import me.padi.jxh.core.network.NetworkDataSource
 import me.padi.jxh.data.repository.CourseRepository
 import me.padi.jxh.data.repository.LoginRepository
 import me.padi.jxh.data.repository.ScoreRepository
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-
-
 val networkModule = module {
-    single { ApiClient.client }
+    single { ApiClient(androidContext()) }
+    single { get<ApiClient>().client }
     single { NetworkDataSource(get()) }
 }
 
@@ -25,10 +27,12 @@ val repositoryModule = module {
     single { CourseRepository(get()) }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 val viewModelModule = module {
     viewModel {
         LoginViewModel(
-            loginRepository = get()
+            loginRepository = get(),
+            apiClient = get()
         )
     }
 
@@ -51,7 +55,7 @@ val viewModelModule = module {
     }
 }
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 val appModule = module {
     includes(
         networkModule, repositoryModule, viewModelModule
