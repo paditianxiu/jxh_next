@@ -4,6 +4,7 @@ package me.padi.jxh.data.repository
 import io.ktor.http.Parameters
 import me.padi.jxh.Api
 import me.padi.jxh.core.common.RSA
+import me.padi.jxh.core.network.ApiClient
 import me.padi.jxh.core.network.NetworkDataSource
 import me.padi.jxh.core.network.NetworkState
 import org.json.JSONObject
@@ -47,6 +48,17 @@ open class LoginRepository(private val network: NetworkDataSource) {
 
         } catch (e: Exception) {
             NetworkState.Error("登录过程异常: ${e.message}", e)
+        }
+    }
+
+    suspend fun logout(): Boolean {
+        return runCatching {
+            val time = System.currentTimeMillis().toString()
+            network.getText(Api.LOGOUT_URL + time).getOrThrow()
+            ApiClient.cookieStorage.clear()
+            true
+        }.getOrElse {
+            false
         }
     }
 

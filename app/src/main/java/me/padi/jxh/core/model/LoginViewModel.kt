@@ -26,6 +26,14 @@ class LoginViewModel(
     }
 
 
+    fun logout() {
+        viewModelScope.launch {
+            loginRepository.logout()
+
+        }
+    }
+
+
     fun setLoading() {
         _loginState.value = NetworkState.Loading
     }

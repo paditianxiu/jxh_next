@@ -8,6 +8,7 @@ import io.ktor.http.Url
 import io.ktor.util.date.GMTDate
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import me.padi.jxh.core.network.ApiClient
 
 class MyCookieStorage : CookiesStorage {
 
@@ -51,6 +52,12 @@ class MyCookieStorage : CookiesStorage {
     }
 
     override fun close() {}
+
+    fun clear() = synchronized(lock) {
+        cache.clear()
+        mmkv.removeValueForKey("cookies")
+    }
+
 }
 
 

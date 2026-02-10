@@ -49,10 +49,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.NavKey
 import coil3.compose.AsyncImage
-import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.launch
 import me.padi.jxh.Screen
+import me.padi.jxh.core.model.LoginViewModel
+import me.padi.jxh.core.network.ApiClient
 import me.padi.jxh.data.repository.ClassParams
+import org.koin.androidx.compose.koinViewModel
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.DropdownColors
 import top.yukonga.miuix.kmp.basic.DropdownDefaults
@@ -99,10 +101,12 @@ fun HomePage(backStack: MutableList<NavKey>) {
         title = items[pagerState.currentPage].label
     }
 
+    val viewModel: LoginViewModel = koinViewModel()
+
     Scaffold(topBar = {
         TopAppBar(scrollBehavior = scrollBehavior, title = title, actions = {
             ListPopup {
-                MMKV.removeStorage("ktor_cookies")
+                viewModel.logout()
                 backStack.clear()
                 backStack.add(Screen.Login)
             }

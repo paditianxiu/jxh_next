@@ -12,4 +12,5 @@ object Api {
     val COURSE_URL = "${BASE_URL}/kbcx/xskbcx_cxXsgrkb.html?gnmkdm=N2151"
     val CLASS_LIST_URL = "${BASE_URL}/kbdy/bjkbdy_cxBjkbdyTjkbList.html?gnmkdm=N214505"
     val CLASS_COURSE_URL="${BASE_URL}/kbdy/bjkbdy_cxBjKb.html?gnmkdm=N214505"
+    val LOGOUT_URL="${BASE_URL}/logout?t="
 }

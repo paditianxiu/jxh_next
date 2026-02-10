@@ -29,9 +29,18 @@ android {
         release {
             isMinifyEnabled = true
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
+        }
+
+        androidComponents {
+            onVariants(selector().all()) { variant ->
+                variant.outputs.map { it as com.android.build.api.variant.impl.VariantOutputImpl }
+                    .forEach { output ->
+                        output.outputFileName =
+                            "江小航_v${output.versionName.get()}(${variant.name}).apk"
+                    }
+            }
         }
     }
     compileOptions {
@@ -42,6 +51,8 @@ android {
         compose = true
         buildConfig = true
     }
+
+
 }
 
 dependencies {

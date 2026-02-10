@@ -34,6 +34,7 @@ import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.delay
 import me.padi.jxh.R
 import me.padi.jxh.core.model.LoginViewModel
+import me.padi.jxh.core.network.ApiClient
 import org.koin.androidx.compose.koinViewModel
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
@@ -211,7 +212,7 @@ fun LoginPage(onNavHome: () -> Unit) {
 //                Button(
 //                    modifier = Modifier.fillMaxWidth(),
 //                    onClick = {
-//                        onNavHome()
+//                        ApiClient.cookieStorage.clear()
 //                    },
 //                ) {
 //                    Text("进入主页")
