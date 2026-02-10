@@ -156,7 +156,19 @@ fun CoursePage(
                     onWeekChange = { week -> currentWeek.value = week },
                     maxWeeks = MAX_WEEKS
                 )
-                if (practiceList.size != 0) {
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 周数标题行
+                WeekDateHeader(
+                    currentWeek = currentWeek.value, weekDates = weekDates
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                CourseContent(table, currentWeek.value)
+
+                if (practiceList.isNotEmpty()) {
                     SmallTitle("实训课程(共${practiceList.size}门)")
                     Card(
                         modifier = Modifier.fillMaxWidth(), insideMargin = PaddingValues(16.dp),
@@ -177,18 +189,6 @@ fun CoursePage(
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // 周数标题行
-                WeekDateHeader(
-                    currentWeek = currentWeek.value, weekDates = weekDates
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                CourseContent(table, currentWeek.value)
-
                 WindowDialog(
                     title = "提示",
                     summary = "课表正在极速获取中...",

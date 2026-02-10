@@ -1,5 +1,6 @@
 package me.padi.jxh.core.di
 
+import me.padi.jxh.core.model.ClassListViewModel
 import me.padi.jxh.core.model.CourseViewModel
 import me.padi.jxh.core.model.LoginViewModel
 import me.padi.jxh.core.model.ScoreViewModel
@@ -38,6 +39,12 @@ val viewModelModule = module {
 
     viewModel {
         CourseViewModel(
+            courseRepository = get()
+        )
+    }
+
+    viewModel {
+        ClassListViewModel(
             courseRepository = get()
         )
     }

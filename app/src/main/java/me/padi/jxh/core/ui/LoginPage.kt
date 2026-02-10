@@ -137,8 +137,8 @@ fun LoginPage(onNavHome: () -> Unit) {
                 }
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Card(modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.defaultColors(
+                Card(
+                    modifier = Modifier.fillMaxWidth(), colors = CardDefaults.defaultColors(
                         color = MiuixTheme.colorScheme.primaryVariant
                     ), insideMargin = PaddingValues(16.dp)
                 ) {

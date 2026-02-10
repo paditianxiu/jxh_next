@@ -8,11 +8,11 @@ import kotlinx.coroutines.launch
 import me.padi.jxh.core.network.NetworkState
 import me.padi.jxh.data.repository.ClassParams
 import me.padi.jxh.data.repository.CourseRepository
-import me.padi.jxh.data.repository.ProcessedClassInfo
 
 class CourseViewModel(
     private val courseRepository: CourseRepository
 ) : ViewModel() {
+
 
     private val _courseState = MutableStateFlow<NetworkState<String>>(NetworkState.Idle)
 
@@ -33,19 +33,5 @@ class CourseViewModel(
         }
     }
 
-
-    private val _classListState =
-        MutableStateFlow<NetworkState<List<ProcessedClassInfo>>>(NetworkState.Idle)
-
-    val classListState = _classListState.asStateFlow()
-
-    fun fetchClassList(
-        year: String = "2025", semester: String = "12"
-    ) {
-        viewModelScope.launch {
-            _classListState.value = NetworkState.Loading
-            _classListState.value = courseRepository.fetchClassList(year, semester)
-        }
-    }
 
 }

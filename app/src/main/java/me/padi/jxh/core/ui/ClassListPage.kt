@@ -17,12 +17,8 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -31,7 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import me.padi.jxh.Screen
-import me.padi.jxh.core.model.CourseViewModel
+import me.padi.jxh.core.model.ClassListViewModel
 import me.padi.jxh.core.network.NetworkState
 import me.padi.jxh.data.repository.ProcessedClassInfo
 import org.koin.androidx.compose.koinViewModel
@@ -54,42 +50,11 @@ import top.yukonga.miuix.kmp.utils.overScrollVertical
 fun ClassListPage(
     backStack: MutableList<NavKey>
 ) {
-    val viewModel: CourseViewModel = koinViewModel()
-    val classListState by viewModel.classListState.collectAsState()
-    val originalClassList = remember { mutableStateOf<List<ProcessedClassInfo>?>(null) }
-    var filteredClassList by remember { mutableStateOf<List<ProcessedClassInfo>?>(null) }
-    var searchText by remember { mutableStateOf("") }
+    val viewModel: ClassListViewModel = koinViewModel()
+    val filteredClassListState by viewModel.filteredClassList.collectAsState()
+    val searchText by viewModel.searchText.collectAsState()
 
     val scrollBehavior = MiuixScrollBehavior()
-    val showLoading = remember { mutableStateOf(true) }
-
-    LaunchedEffect(classListState) {
-        showLoading.value = classListState.isLoading()
-        if (classListState is NetworkState.Success) {
-            val data = (classListState as NetworkState.Success).data
-            originalClassList.value = data
-            filteredClassList = data
-        }
-    }
-
-    LaunchedEffect(searchText, originalClassList.value) {
-        val original = originalClassList.value ?: return@LaunchedEffect
-        filteredClassList = if (searchText.isBlank()) {
-            original
-        } else {
-            original.filter { classInfo ->
-                classInfo.className.contains(
-                    searchText, ignoreCase = true
-                ) || classInfo.major.contains(
-                    searchText, ignoreCase = true
-                ) || classInfo.college.contains(searchText, ignoreCase = true)
-            }
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.fetchClassList()
-    }
 
     Scaffold(
         topBar = {
@@ -106,7 +71,7 @@ fun ClassListPage(
                 })
         },
     ) { innerPadding ->
-        when (val state = classListState) {
+        when (val state = filteredClassListState) {
             is NetworkState.Loading -> {
                 Box(
                     modifier = Modifier
@@ -134,7 +99,7 @@ fun ClassListPage(
                         Spacer(modifier = Modifier.height(8.dp))
                         TextField(
                             value = searchText,
-                            onValueChange = { searchText = it },
+                            onValueChange = { viewModel.updateSearchText(it) },
                             label = "筛选（班级/专业/学院）",
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
@@ -142,7 +107,7 @@ fun ClassListPage(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
 
-                    filteredClassList?.let { list ->
+                    state.data.let { list ->
                         if (list.isEmpty()) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
