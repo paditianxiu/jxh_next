@@ -137,6 +137,10 @@ class NetworkDataSource(
             response.bodyAsText()
         }
     }
+
+    fun getClient(): HttpClient {
+        return client;
+    }
 }
 
 

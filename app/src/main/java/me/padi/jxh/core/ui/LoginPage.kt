@@ -218,7 +218,7 @@ fun LoginPage(backStack: MutableList<NavKey>) {
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        backStack.add(Screen.CourseSetting)
+                        backStack.add(Screen.Home)
                     },
                 ) {
                     Text("进入主页")

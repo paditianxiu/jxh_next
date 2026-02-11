@@ -11,18 +11,17 @@ import me.padi.jxh.core.network.NetworkDataSource
 import me.padi.jxh.data.repository.CourseRepository
 import me.padi.jxh.data.repository.LoginRepository
 import me.padi.jxh.data.repository.ScoreRepository
-import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val networkModule = module {
-    single { ApiClient(androidContext()) }
+    single { ApiClient() }
     single { get<ApiClient>().client }
     single { NetworkDataSource(get()) }
 }
 
 val repositoryModule = module {
-    single { LoginRepository(get()) }
+    single { LoginRepository(get(), get()) }
     single { ScoreRepository(get()) }
     single { CourseRepository(get()) }
 }
@@ -31,8 +30,7 @@ val repositoryModule = module {
 val viewModelModule = module {
     viewModel {
         LoginViewModel(
-            loginRepository = get(),
-            apiClient = get()
+            loginRepository = get(), apiClient = get()
         )
     }
 

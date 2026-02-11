@@ -20,7 +20,6 @@ class LoginViewModel(
 
     fun login(userName: String, password: String) {
         viewModelScope.launch {
-            apiClient.clearCookies()
             setLoading()
             _loginState.value = loginRepository.login(userName, password)
 
@@ -31,7 +30,6 @@ class LoginViewModel(
     fun logout() {
         viewModelScope.launch {
             loginRepository.logout()
-            apiClient.clearCookies()
         }
     }
 

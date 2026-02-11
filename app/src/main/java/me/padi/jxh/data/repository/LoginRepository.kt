@@ -11,9 +11,13 @@ import org.json.JSONObject
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
-open class LoginRepository(private val network: NetworkDataSource) {
+open class LoginRepository(
+    private val network: NetworkDataSource,
+    private val apiClient: ApiClient
+) {
     open suspend fun login(userName: String, password: String): NetworkState<String> {
         return try {
+            apiClient.cookieStorage.clearAll()
             val time = System.currentTimeMillis().toString()
             val result = runCatching {
                 val pageText = network.getText(Api.LOGIN_URL + time).getOrThrow()
@@ -53,6 +57,7 @@ open class LoginRepository(private val network: NetworkDataSource) {
 
     suspend fun logout(): Boolean {
         return runCatching {
+            apiClient.cookieStorage.clearAll()
             val time = System.currentTimeMillis().toString()
             network.getText(Api.LOGOUT_URL + time).getOrThrow()
             true
