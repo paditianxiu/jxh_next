@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import me.padi.jxh.core.model.ScoreViewModel
 import me.padi.jxh.core.network.NetworkState
 import me.padi.jxh.data.repository.ScoreItem
@@ -48,7 +49,7 @@ import top.yukonga.miuix.kmp.utils.PressFeedbackType
 import top.yukonga.miuix.kmp.utils.overScrollVertical
 
 @Composable
-fun ScorePage(onBack: () -> Unit) {
+fun ScorePage(backStack: MutableList<NavKey>) {
     val viewModel: ScoreViewModel = koinViewModel()
     val scoreState by viewModel.scoreState.collectAsState()
     val scrollBehavior = MiuixScrollBehavior()
@@ -94,8 +95,9 @@ fun ScorePage(onBack: () -> Unit) {
             TopAppBar(scrollBehavior = scrollBehavior, title = "考试成绩", navigationIcon = {
                 Spacer(Modifier.width(4.dp))
                 IconButton(
-                    onClick = onBack
-                ) {
+                    onClick = {
+                        backStack.removeAt(backStack.lastIndex)
+                    }) {
                     Icon(MiuixIcons.Back, contentDescription = "返回")
                 }
             }, actions = {

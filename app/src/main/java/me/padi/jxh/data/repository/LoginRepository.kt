@@ -20,7 +20,7 @@ open class LoginRepository(
             apiClient.cookieStorage.clearAll()
             val time = System.currentTimeMillis().toString()
             val result = runCatching {
-                val pageText = network.getText(Api.LOGIN_URL + time).getOrThrow()
+                val pageText = network.getText(Api.LOGOUT_URL + time).getOrThrow()
                 val doc = Jsoup.parse(pageText)
                 val csrftoken = doc.selectFirst("input#csrftoken")?.attr("value") ?: ""
                 val keyJson = network.getText(Api.LOGIN_KEY_URL + time).getOrThrow()

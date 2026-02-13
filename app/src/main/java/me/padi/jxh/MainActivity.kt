@@ -16,6 +16,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import jnu.kulipai.exam.ui.screens.egg.EmojiEasterEggPage
 import me.padi.jxh.core.ui.AboutPage
+import me.padi.jxh.core.ui.CampusLifePage
 import me.padi.jxh.core.ui.ClassListPage
 import me.padi.jxh.core.ui.CoursePage
 import me.padi.jxh.core.ui.CourseSetting
@@ -50,7 +51,8 @@ sealed interface Screen : NavKey {
     data object About : Screen
     data object ClassList : Screen
     data class Course(val params: ClassParams) : Screen
-    data object CourseSetting: Screen
+    data object CourseSetting : Screen
+    data object CampusLife : Screen
 }
 
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -61,7 +63,7 @@ fun App() {
     val entryProvider = remember(backStack) {
         entryProvider<NavKey> {
             entry(Screen.Login) {
-                LoginPage (backStack)
+                LoginPage(backStack)
             }
             entry(Screen.Home) {
                 HomePage(backStack)
@@ -80,22 +82,17 @@ fun App() {
                     screen.params, backStack
                 )
             }
-            entry (Screen.CourseSetting){
+            entry(Screen.CourseSetting) {
                 CourseSetting(backStack)
             }
             entry(Screen.Map) {
-                MapPage {
-                    if (backStack.isNotEmpty()) {
-                        backStack.removeAt(backStack.lastIndex)
-                    }
-                }
+                MapPage(backStack)
             }
             entry<Screen.Score> {
-                ScorePage {
-                    if (backStack.isNotEmpty()) {
-                        backStack.removeAt(backStack.lastIndex)
-                    }
-                }
+                ScorePage(backStack)
+            }
+            entry(Screen.CampusLife) {
+                CampusLifePage(backStack)
             }
         }
     }

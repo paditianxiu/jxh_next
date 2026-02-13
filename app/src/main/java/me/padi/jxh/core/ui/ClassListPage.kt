@@ -1,5 +1,7 @@
 package me.padi.jxh.core.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,6 +48,7 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.utils.PressFeedbackType
 import top.yukonga.miuix.kmp.utils.overScrollVertical
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ClassListPage(
     backStack: MutableList<NavKey>
@@ -62,9 +65,7 @@ fun ClassListPage(
                 title = "班级列表", scrollBehavior = scrollBehavior, navigationIcon = {
                     Spacer(Modifier.width(4.dp))
                     IconButton(onClick = {
-                        if (backStack.isNotEmpty()) {
-                            backStack.removeAt(backStack.lastIndex)
-                        }
+                        backStack.removeAt(backStack.lastIndex)
                     }) {
                         Icon(MiuixIcons.Back, contentDescription = "返回")
                     }

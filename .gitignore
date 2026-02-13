@@ -26,3 +26,4 @@ app/release/
 
 # Gradle 缓存
 .gradle/caches/
+/app/release

@@ -105,10 +105,10 @@ fun CoursePage(
     }
 
     // 解析所有课程数据
-    val allCourses = remember(courseState.getOrNull()) {
+    val allCourses = remember(courseState) {
         parseAllCourses(courseState.getOrNull() ?: "")
     }
-    val practiceList = remember(courseState.getOrNull()) {
+    val practiceList = remember(courseState) {
         if (params.isEmpty()) {
             emptyList()
         } else {

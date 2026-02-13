@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Egg
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.NordicWalking
 import androidx.compose.material.icons.filled.Scoreboard
+import androidx.compose.material.icons.filled.Support
 import androidx.compose.material.icons.filled.Token
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,6 +65,7 @@ import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.ListPopupColumn
 import top.yukonga.miuix.kmp.basic.ListPopupDefaults
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
+import top.yukonga.miuix.kmp.basic.NavigationBar
 import top.yukonga.miuix.kmp.basic.NavigationItem
 import top.yukonga.miuix.kmp.basic.PopupPositionProvider
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -112,14 +114,14 @@ fun HomePage(backStack: MutableList<NavKey>) {
             Spacer(Modifier.width(4.dp))
         })
     }, bottomBar = {
-        FloatingNavigationBar(
+        NavigationBar(
             items = items, selected = selectedIndex, onClick = {
                 selectedIndex = it
                 title = items[it].label
                 scope.launch {
                     pagerState.animateScrollToPage(it)
                 }
-            }, mode = FloatingNavigationBarMode.IconOnly
+            }
         )
     }) { paddingValues ->
         HorizontalPager(
@@ -197,6 +199,19 @@ fun HomeMainPage(backStack: MutableList<NavKey>) {
                 ) {
                     backStack.add(Screen.ClassList)
                 }
+            }
+            Spacer(Modifier.height(8.dp))
+            SmallTitle(
+                text = "校园工具", insideMargin = PaddingValues(8.dp, 0.dp)
+            )
+            Spacer(Modifier.height(16.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                StudyCard(
+                    Icons.Default.Support, "校园生活", "校园生活工具便捷跳转", Modifier.weight(1f)
+                ) {
+                    backStack.add(Screen.CampusLife)
+                }
+
                 Spacer(Modifier.width(16.dp))
                 StudyCard(
                     Icons.Default.Map, "江航地图", "学校地图概况，一览众山小", Modifier.weight(1f)
@@ -204,6 +219,7 @@ fun HomeMainPage(backStack: MutableList<NavKey>) {
                     backStack.add(Screen.Map)
                 }
             }
+
         }
     }
 }
@@ -382,14 +398,13 @@ fun DropdownItem(
     val additionalTopPadding = if (index == 0) 20f.dp else 12f.dp
     val additionalBottomPadding = if (index == optionSize - 1) 20f.dp else 12f.dp
 
-    Row(
-        modifier = Modifier
-            .clickable { currentOnSelectedIndexChange.value(index) }
-            .background(dropdownColors.containerColor)
-            .padding(horizontal = 20.dp)
-            .padding(
-                top = additionalTopPadding, bottom = additionalBottomPadding
-            ), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = Modifier
+        .clickable { currentOnSelectedIndexChange.value(index) }
+        .background(dropdownColors.containerColor)
+        .padding(horizontal = 20.dp)
+        .padding(
+            top = additionalTopPadding, bottom = additionalBottomPadding
+        ), verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = text,
             fontSize = MiuixTheme.textStyles.body1.fontSize,
