@@ -72,7 +72,7 @@ fun CourseSetting(
     }
 
     // 课表配置状态
-    var isSame by remember { mutableStateOf(DateStorage.getIsSame()) } // 建议从 MMKV 读取初始值
+    var isSame by remember { mutableStateOf(DateStorage.getIsSame()) }
     val currentType = remember { mutableStateOf(DateStorage.Type.PERSONAL) }
 
     // 个人和班级的数据状态
@@ -197,7 +197,6 @@ fun CourseSetting(
             }
         }
 
-        // --- 弹窗逻辑 ---
 
         // 1. 日期选择弹窗
         WindowDialog(
@@ -230,7 +229,6 @@ fun CourseSetting(
                         DateStorage.saveSemester(
                             DateStorage.Type.PERSONAL, semester
                         )
-                        // 如果开启了同步，同时保存给 Class
                         if (isSame) {
                             classYear = year
                             classSemester = semester
@@ -238,7 +236,7 @@ fun CourseSetting(
                             DateStorage.saveSemester(
                                 DateStorage.Type.CLASS, semester
                             )
-
+                            viewModel.updateDate(year.toString(), semester.toString())
                         }
                     } else {
                         classYear = year
@@ -247,8 +245,8 @@ fun CourseSetting(
                         DateStorage.saveSemester(
                             DateStorage.Type.CLASS, semester
                         )
+                        viewModel.updateDate(year.toString(), semester.toString())
                     }
-                    viewModel.updateDate(year.toString(), semester.toString())
                 })
         }
     }

@@ -2,7 +2,6 @@ package me.padi.jxh.data.repository
 
 import io.ktor.http.Parameters
 import me.padi.jxh.Api
-import me.padi.jxh.core.common.d
 import me.padi.jxh.core.network.NetworkDataSource
 import me.padi.jxh.core.network.NetworkState
 import org.json.JSONArray

@@ -119,8 +119,7 @@ fun HomePage(backStack: MutableList<NavKey>) {
                 scope.launch {
                     pagerState.animateScrollToPage(it)
                 }
-            }
-        )
+            })
     }) { paddingValues ->
         HorizontalPager(
             state = pagerState,
@@ -143,8 +142,8 @@ fun HomeMainPage(backStack: MutableList<NavKey>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .overScrollVertical()
-            .padding(16.dp)
+            .overScrollVertical(),
+        contentPadding = PaddingValues(16.dp)
     ) {
         item {
             Spacer(Modifier.height(8.dp))
@@ -396,14 +395,13 @@ fun DropdownItem(
     val additionalTopPadding = if (index == 0) 20f.dp else 12f.dp
     val additionalBottomPadding = if (index == optionSize - 1) 20f.dp else 12f.dp
 
-    Row(
-        modifier = Modifier
-            .clickable { currentOnSelectedIndexChange.value(index) }
-            .background(dropdownColors.containerColor)
-            .padding(horizontal = 20.dp)
-            .padding(
-                top = additionalTopPadding, bottom = additionalBottomPadding
-            ), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = Modifier
+        .clickable { currentOnSelectedIndexChange.value(index) }
+        .background(dropdownColors.containerColor)
+        .padding(horizontal = 20.dp)
+        .padding(
+            top = additionalTopPadding, bottom = additionalBottomPadding
+        ), verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = text,
             fontSize = MiuixTheme.textStyles.body1.fontSize,
