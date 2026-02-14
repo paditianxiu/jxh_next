@@ -1,4 +1,16 @@
+<div align="center">
+
+<img src="./images/icon.png" width="160" height="160" style="display: block; margin: 0 auto; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); border-radius: 20%;" alt="icon" />
+
 # 江小航
+
+### 一款 [江航职院](https://www.jhzyedu.cn/) 校园生活助手
+
+![Gitea Stars](https://img.shields.io/github/stars/paditianxiu/jxh_next?style=flat)
+![GitHub top language](https://img.shields.io/github/languages/top/paditianxiu/jxh_next)
+![GitHub Release](https://img.shields.io/github/v/release/paditianxiu/jxh_next)
+![Github all releases](https://img.shields.io/github/downloads/paditianxiu/jxh_next/total.svg)
+</div>
 
 [![群](https://img.shields.io/badge/%E4%BC%81%E9%B9%85%E7%BE%A4-1073473158-ff69b4)](https://qm.qq.com/q/L2aq4tSTew)
 
@@ -11,7 +23,8 @@
 
 ## 📌 项目简介
 
-`江小航` 是基于 **Jetpack Compose** 和现代 Android 开发技术栈构建的江西航空职业技术学院教务系统客户端。旨在替代传统 Web 视图式的教务系统，以更符合现代安卓体验的方式展示课程、成绩、课表等信息。
+`江小航` 是基于 **Jetpack Compose** 和现代 Android 开发技术栈构建的江西航空职业技术学院教务系统客户端。旨在替代传统
+Web 视图式的教务系统，以更符合现代安卓体验的方式展示课程、成绩、课表等信息。
 
 该项目由 @paditianxiu 维护，当前仍在开发中，欢迎大家 ⭐ 和贡献代码！
 

@@ -221,7 +221,7 @@ fun LoginPage(backStack: MutableList<NavKey>) {
                         backStack.add(Screen.Home)
                     },
                 ) {
-                    Text("进入主页")
+                    Text("游客模式")
                 }
             }
         }

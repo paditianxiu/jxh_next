@@ -10,8 +10,8 @@ local.properties
 .cxx
 
 # 构建输出
-app/build/
-app/release/
+/app/build/
+/app/release/
 *.apk
 *.aab
 *.ap_
@@ -26,4 +26,3 @@ app/release/
 
 # Gradle 缓存
 .gradle/caches/
-/app/release

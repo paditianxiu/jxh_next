@@ -58,8 +58,6 @@ import org.koin.androidx.compose.koinViewModel
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.DropdownColors
 import top.yukonga.miuix.kmp.basic.DropdownDefaults
-import top.yukonga.miuix.kmp.basic.FloatingNavigationBar
-import top.yukonga.miuix.kmp.basic.FloatingNavigationBarMode
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.ListPopupColumn
@@ -398,13 +396,14 @@ fun DropdownItem(
     val additionalTopPadding = if (index == 0) 20f.dp else 12f.dp
     val additionalBottomPadding = if (index == optionSize - 1) 20f.dp else 12f.dp
 
-    Row(modifier = Modifier
-        .clickable { currentOnSelectedIndexChange.value(index) }
-        .background(dropdownColors.containerColor)
-        .padding(horizontal = 20.dp)
-        .padding(
-            top = additionalTopPadding, bottom = additionalBottomPadding
-        ), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier
+            .clickable { currentOnSelectedIndexChange.value(index) }
+            .background(dropdownColors.containerColor)
+            .padding(horizontal = 20.dp)
+            .padding(
+                top = additionalTopPadding, bottom = additionalBottomPadding
+            ), verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = text,
             fontSize = MiuixTheme.textStyles.body1.fontSize,

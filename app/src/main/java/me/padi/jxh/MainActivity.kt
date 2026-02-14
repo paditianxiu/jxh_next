@@ -55,7 +55,7 @@ sealed interface Screen : NavKey {
     data object CampusLife : Screen
 }
 
-@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun App() {
     val backStack = remember { mutableStateListOf<NavKey>(Screen.Login) }
