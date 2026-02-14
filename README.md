@@ -10,9 +10,8 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/paditianxiu/jxh_next)
 ![GitHub Release](https://img.shields.io/github/v/release/paditianxiu/jxh_next)
 ![Github all releases](https://img.shields.io/github/downloads/paditianxiu/jxh_next/total.svg)
-</div>
-
 [![群](https://img.shields.io/badge/%E4%BC%81%E9%B9%85%E7%BE%A4-1073473158-ff69b4)](https://qm.qq.com/q/L2aq4tSTew)
+</div>
 
 > 🎓 正方教务系统（江西航空职业技术学院）移动端重写  
 > 使用 **Jetpack Compose** 实现的安卓客户端版本，目标是更现代、更流畅、更易用的教务系统体验。
