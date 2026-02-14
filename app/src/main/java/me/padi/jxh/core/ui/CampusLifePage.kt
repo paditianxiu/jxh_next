@@ -46,9 +46,7 @@ fun CampusLifePage(backStack: MutableList<NavKey>) {
     val scrollBehavior = MiuixScrollBehavior()
     val snackBarHostState = remember { SnackbarHostState() }
     val listState = rememberLazyListState()
-
     val context = LocalContext.current
-
     Scaffold(topBar = {
         TopAppBar(
             scrollBehavior = scrollBehavior, title = "校园生活", navigationIcon = {
@@ -58,7 +56,7 @@ fun CampusLifePage(backStack: MutableList<NavKey>) {
                     }, modifier = Modifier.padding(start = 16.dp)
                 ) {
                     Icon(
-                        imageVector = MiuixIcons.Regular.Back, contentDescription = "back"
+                        imageVector = MiuixIcons.Regular.Back, contentDescription = "返回"
                     )
                 }
             })

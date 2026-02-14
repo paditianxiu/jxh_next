@@ -23,6 +23,7 @@ import me.padi.jxh.core.ui.CourseSetting
 import me.padi.jxh.core.ui.HomePage
 import me.padi.jxh.core.ui.LoginPage
 import me.padi.jxh.core.ui.MapPage
+import me.padi.jxh.core.ui.NewsDetailPage
 import me.padi.jxh.core.ui.ScorePage
 import me.padi.jxh.data.repository.ClassParams
 import me.padi.jxh.ui.theme.Theme
@@ -53,6 +54,7 @@ sealed interface Screen : NavKey {
     data class Course(val params: ClassParams) : Screen
     data object CourseSetting : Screen
     data object CampusLife : Screen
+    data class NewsDetail(val url: String) : Screen
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -82,6 +84,12 @@ fun App() {
                     screen.params, backStack
                 )
             }
+
+            entry<Screen.NewsDetail> { screen ->
+                NewsDetailPage(
+                    screen.url, backStack
+                )
+            }
             entry(Screen.CourseSetting) {
                 CourseSetting(backStack)
             }
@@ -94,6 +102,7 @@ fun App() {
             entry(Screen.CampusLife) {
                 CampusLifePage(backStack)
             }
+
         }
     }
 

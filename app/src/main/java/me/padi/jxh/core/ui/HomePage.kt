@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Egg
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Newspaper
 import androidx.compose.material.icons.filled.NordicWalking
 import androidx.compose.material.icons.filled.Scoreboard
 import androidx.compose.material.icons.filled.Support
@@ -86,6 +87,7 @@ fun HomePage(backStack: MutableList<NavKey>) {
 
     val items: List<NavigationItem> = listOf(
         NavigationItem("江小航", MiuixIcons.VerticalSplit),
+        NavigationItem("新闻", Icons.Default.Newspaper),
         NavigationItem("设置", MiuixIcons.Settings)
     )
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -130,7 +132,9 @@ fun HomePage(backStack: MutableList<NavKey>) {
         ) { page ->
             when (page) {
                 0 -> HomeMainPage(backStack)
-                1 -> SettingsPage(backStack)
+                1 -> NewsPage(
+                    backStack)
+                2 -> SettingsPage(backStack)
             }
 
         }

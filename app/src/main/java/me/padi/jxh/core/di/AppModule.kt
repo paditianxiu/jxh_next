@@ -5,11 +5,13 @@ import androidx.annotation.RequiresApi
 import me.padi.jxh.core.model.ClassListViewModel
 import me.padi.jxh.core.model.CourseViewModel
 import me.padi.jxh.core.model.LoginViewModel
+import me.padi.jxh.core.model.NewsViewModel
 import me.padi.jxh.core.model.ScoreViewModel
 import me.padi.jxh.core.network.ApiClient
 import me.padi.jxh.core.network.NetworkDataSource
 import me.padi.jxh.data.repository.CourseRepository
 import me.padi.jxh.data.repository.LoginRepository
+import me.padi.jxh.data.repository.NewsRepository
 import me.padi.jxh.data.repository.ScoreRepository
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -24,6 +26,7 @@ val repositoryModule = module {
     single { LoginRepository(get(), get()) }
     single { ScoreRepository(get()) }
     single { CourseRepository(get()) }
+    single { NewsRepository(get()) }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -49,6 +52,12 @@ val viewModelModule = module {
     viewModel {
         ClassListViewModel(
             courseRepository = get()
+        )
+    }
+
+    viewModel {
+        NewsViewModel(
+            newsRepository = get()
         )
     }
 }

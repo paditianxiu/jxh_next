@@ -1,10 +1,11 @@
 package me.padi.jxh.core.network
 
+import me.padi.jxh.data.repository.NewsData
 
 sealed class NetworkState<out T> {
     data object Idle : NetworkState<Nothing>()
     data object Loading : NetworkState<Nothing>()
-    data class Success<T>(val data: T) : NetworkState<T>()
+    data class Success<out T>(val data: T) : NetworkState<T>()
     data class Error(val message: String, val error: Throwable? = null) : NetworkState<Nothing>()
 
     // 辅助函数
@@ -21,6 +22,11 @@ sealed class NetworkState<out T> {
 
     fun getErrorOrNull(): String? = when (this) {
         is Error -> message
+        else -> null
+    }
+
+    fun getThrowableOrNull(): Throwable? = when (this) {
+        is Error -> error
         else -> null
     }
 }

@@ -7,5 +7,9 @@ class Constants {
         const val TAOBAO_URL =
             "https://pages-fast.m.taobao.com/wow/z/uniapp/1011717/last-mile-fe/end-collect-platform/identity-code?x-ssr=true"
 
+        const val SCHOOL_NEWS_URL = "https://jhzyedu.cn/index/xxyw"
+        const val NEWS_FLASH_URL = "https://jhzyedu.cn/index/xwkx"
+        const val COLLEGE_NEWS_URL = "https://jhzyedu.cn/index/xydt"
+
     }
 }
