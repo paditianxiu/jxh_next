@@ -20,6 +20,7 @@ import com.rajat.pdfviewer.PdfRendererView
 import com.rajat.pdfviewer.compose.PdfRendererViewCompose
 import com.rajat.pdfviewer.util.PdfSource
 import me.padi.jxh.R
+import me.padi.jxh.core.common.d
 import me.padi.jxh.core.components.CircularProgressIndicator
 import me.padi.jxh.core.components.DownloadDialog
 
@@ -30,6 +31,7 @@ import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import java.net.URLDecoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +44,8 @@ fun PdfReaderView(
     val pdfLoading = remember { mutableStateOf(true) }
     val pdfLoadingText = remember { mutableStateOf("正在加载PDF...") }
     val showDownloadDialog = remember { mutableStateOf(false) }
+    val pdfUrl = URLDecoder.decode(url)
+    pdfUrl.d()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -83,7 +87,7 @@ fun PdfReaderView(
                     CircularProgressIndicator(loadingText = pdfLoadingText.value)
                 }
                 PdfRendererViewCompose(
-                    source = PdfSource.Remote(url),
+                    source = PdfSource.Remote(pdfUrl),
                     lifecycleOwner = lifecycleOwner,
                     modifier = Modifier,
                     statusCallBack = object : PdfRendererView.StatusCallBack {
@@ -122,7 +126,7 @@ fun PdfReaderView(
         }
 
         DownloadDialog(
-            showDialog = showDownloadDialog, fileName = title, url = url
+            showDialog = showDownloadDialog, fileName = title, url = pdfUrl
         )
     }
 }

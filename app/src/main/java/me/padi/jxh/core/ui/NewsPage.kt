@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -73,78 +71,68 @@ fun NewsPage(backStack: MutableList<NavKey>) {
             }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        if (uiState.newsList.isEmpty() && !uiState.isLoading && uiState.error == null) {
-            Box(
-                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "暂无新闻", color = MiuixTheme.colorScheme.onSurface
-                )
-            }
-        } else {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 16.dp)
-                    .overScrollVertical(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                item {
-                    TabRowWithContour(tabs = NEW_LIST.map {
-                        it.key
-                    }, selectedTabIndex = selectedTabIndex, onTabSelected = {
-                        selectedTabIndex = it
-                        viewModel.updateNewsUrl(NEW_LIST.values.elementAt(it))
-                    })
-                }
-                items(
-                    items = uiState.newsList,
-                ) { news ->
-                    NewsItem(
-                        news
-                    ) {
-                        backStack.add(Screen.NewsDetail(news.url))
-                    }
-                }
 
-                if (uiState.isLoading && uiState.newsList.isNotEmpty()) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            InfiniteProgressIndicator(
-                                modifier = Modifier.width(24.dp),
-                            )
-                        }
-                    }
-                }
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 16.dp)
+            .overScrollVertical(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            TabRowWithContour(tabs = NEW_LIST.map {
+                it.key
+            }, selectedTabIndex = selectedTabIndex, onTabSelected = {
+                selectedTabIndex = it
+                viewModel.updateNewsUrl(NEW_LIST.values.elementAt(it))
+            })
+        }
+        items(
+            items = uiState.newsList,
+        ) { news ->
+            NewsItem(
+                news
+            ) {
+                backStack.add(Screen.NewsDetail(news.url))
             }
         }
 
-        if (uiState.isLoading && uiState.newsList.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-            ) {
-                InfiniteProgressIndicator(
-                    modifier = Modifier.width(24.dp),
-                )
+        if (uiState.isLoading && uiState.newsList.isNotEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    InfiniteProgressIndicator(
+                        modifier = Modifier.width(24.dp),
+                    )
+                }
             }
         }
+    }
 
-        if (uiState.error != null && uiState.newsList.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "加载失败: ${uiState.error}", color = MaterialTheme.colorScheme.error
-                )
-            }
+
+    if (uiState.isLoading && uiState.newsList.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+        ) {
+            InfiniteProgressIndicator(
+                modifier = Modifier.width(24.dp),
+            )
+        }
+    }
+
+    if (uiState.error != null && uiState.newsList.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "加载失败: ${uiState.error}", color = MaterialTheme.colorScheme.error
+            )
         }
     }
 }
