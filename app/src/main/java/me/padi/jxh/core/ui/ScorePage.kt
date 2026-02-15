@@ -93,9 +93,8 @@ fun ScorePage(backStack: MutableList<NavKey>) {
     Scaffold(
         topBar = {
             TopAppBar(scrollBehavior = scrollBehavior, title = "考试成绩", navigationIcon = {
-                Spacer(Modifier.width(4.dp))
                 IconButton(
-                    onClick = {
+                    modifier = Modifier.padding(start = 16.dp), onClick = {
                         backStack.removeAt(backStack.lastIndex)
                     }) {
                     Icon(MiuixIcons.Back, contentDescription = "返回")

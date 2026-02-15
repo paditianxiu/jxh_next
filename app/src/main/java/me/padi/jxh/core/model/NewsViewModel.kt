@@ -7,12 +7,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.padi.jxh.core.network.NetworkState
+import me.padi.jxh.core.utils.Constants.Companion.SCHOOL_NEWS_URL
 import me.padi.jxh.data.repository.NewsArticleEntity
 import me.padi.jxh.data.repository.NewsData
 import me.padi.jxh.data.repository.NewsRepository
 
 class NewsViewModel(
-    private val newsRepository: NewsRepository
+    private val newsRepository: NewsRepository,
+    private val initialNewsUrl: String = SCHOOL_NEWS_URL  // 添加构造函数参数
 ) : ViewModel() {
 
     data class NewsUiState(
@@ -22,6 +24,7 @@ class NewsViewModel(
         val currentPage: Int = 1,
         val hasMorePages: Boolean = true,
         val newsArticle: NewsArticleEntity? = null,
+        val newsUrl: String = SCHOOL_NEWS_URL  // 添加到 UI State 中
     )
 
     private val _uiState = MutableStateFlow(NewsUiState())
@@ -34,7 +37,7 @@ class NewsViewModel(
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
             try {
-                when (val result = newsRepository.fetchSchoolNews(page)) {
+                when (val result = newsRepository.fetchSchoolNews(_uiState.value.newsUrl, page)) {
                     is NetworkState.Success -> {
                         _uiState.value = _uiState.value.copy(
                             newsList = _uiState.value.newsList + result.data,
@@ -50,13 +53,7 @@ class NewsViewModel(
                         )
                     }
 
-                    is NetworkState.Loading -> {
-                        // Already handled
-                    }
-
-                    else -> {
-
-                    }
+                    else -> {}
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -64,6 +61,13 @@ class NewsViewModel(
                 )
             }
         }
+    }
+
+    fun updateNewsUrl(newUrl: String) {
+        _uiState.value = _uiState.value.copy(
+            newsUrl = newUrl, newsList = emptyList(), currentPage = 1, hasMorePages = true
+        )
+        fetchSchoolNews(1)
     }
 
     fun loadNextPage() {
@@ -75,7 +79,6 @@ class NewsViewModel(
     fun getNewsDetail(url: String) {
         viewModelScope.launch {
             val res = newsRepository.getNewsDetail(url)
-
             if (res != null) {
                 _uiState.value = _uiState.value.copy(newsArticle = res)
             }
@@ -86,7 +89,6 @@ class NewsViewModel(
         fetchSchoolNews(1)
     }
 }
-
 
 
 

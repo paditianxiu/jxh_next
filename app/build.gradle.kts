@@ -17,8 +17,8 @@ android {
         applicationId = "me.padi.jxh"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         val buildTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
@@ -102,6 +102,7 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
 
     implementation("io.github.kevinnzou:compose-webview:0.33.6")
+    implementation("io.github.afreakyelf:Pdf-Viewer:2.3.7")
 
 
 }

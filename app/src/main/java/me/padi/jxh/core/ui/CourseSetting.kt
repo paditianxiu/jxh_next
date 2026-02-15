@@ -108,10 +108,10 @@ fun CourseSetting(
         topBar = {
             TopAppBar(
                 title = "课程表设置", scrollBehavior = scrollBehavior, navigationIcon = {
-                    Spacer(Modifier.width(4.dp))
-                    IconButton(onClick = {
-                        if (backStack.isNotEmpty()) backStack.removeAt(backStack.lastIndex)
-                    }) {
+                    IconButton(
+                        modifier = Modifier.padding(start = 16.dp), onClick = {
+                            if (backStack.isNotEmpty()) backStack.removeAt(backStack.lastIndex)
+                        }) {
                         Icon(MiuixIcons.Back, contentDescription = "返回")
                     }
                 })

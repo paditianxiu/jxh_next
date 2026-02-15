@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -20,6 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,10 +44,12 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import me.padi.jxh.R
 import me.padi.jxh.Screen
 import me.padi.jxh.core.model.NewsViewModel
+import me.padi.jxh.core.utils.Constants.Companion.NEW_LIST
 import me.padi.jxh.data.repository.NewsData
 import org.koin.androidx.compose.koinViewModel
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.InfiniteProgressIndicator
+import top.yukonga.miuix.kmp.basic.TabRowWithContour
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.utils.PressFeedbackType
@@ -54,6 +61,7 @@ fun NewsPage(backStack: MutableList<NavKey>) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
 
+    var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }.distinctUntilChanged()
@@ -84,6 +92,14 @@ fun NewsPage(backStack: MutableList<NavKey>) {
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                item {
+                    TabRowWithContour(tabs = NEW_LIST.map {
+                        it.key
+                    }, selectedTabIndex = selectedTabIndex, onTabSelected = {
+                        selectedTabIndex = it
+                        viewModel.updateNewsUrl(NEW_LIST.values.elementAt(it))
+                    })
+                }
                 items(
                     items = uiState.newsList,
                 ) { news ->
@@ -165,7 +181,7 @@ fun NewsItem(
                 )
             },
             trailingContent = {
-                if (imageLoadEnabled && !news.img.isNullOrBlank()) {
+                if (imageLoadEnabled && news.img.isNotBlank()) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current).data(news.img)
                             .crossfade(true).build(),

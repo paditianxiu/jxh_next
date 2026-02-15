@@ -217,7 +217,11 @@ fun HomeMainPage(backStack: MutableList<NavKey>) {
                 StudyCard(
                     Icons.Default.Map, "江航地图", "学校地图概况，一览众山小", Modifier.weight(1f)
                 ) {
-                    backStack.add(Screen.Map)
+                    backStack.add(Screen.Image(
+                        "江航地图",
+                        "https://jxh.karpov.cn/public/map.jpg",
+                        backStack
+                    ))
                 }
             }
 

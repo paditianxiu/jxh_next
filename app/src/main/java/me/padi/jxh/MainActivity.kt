@@ -21,9 +21,10 @@ import me.padi.jxh.core.ui.ClassListPage
 import me.padi.jxh.core.ui.CoursePage
 import me.padi.jxh.core.ui.CourseSetting
 import me.padi.jxh.core.ui.HomePage
+import me.padi.jxh.core.ui.ImagePage
 import me.padi.jxh.core.ui.LoginPage
-import me.padi.jxh.core.ui.MapPage
 import me.padi.jxh.core.ui.NewsDetailPage
+import me.padi.jxh.core.ui.PdfReaderView
 import me.padi.jxh.core.ui.ScorePage
 import me.padi.jxh.data.repository.ClassParams
 import me.padi.jxh.ui.theme.Theme
@@ -47,7 +48,14 @@ sealed interface Screen : NavKey {
     data object Login : Screen
     data object Score : Screen
     data object Home : Screen
-    data object Map : Screen
+    data class Image(
+        val title: String, val url: String, val backStack: MutableList<NavKey>
+    ) : Screen {
+        override fun toString(): String {
+            return "Screen.Image(title='$title', url='$url', backStackSize=${backStack.size})"
+        }
+    }
+
     data object Egg : Screen
     data object About : Screen
     data object ClassList : Screen
@@ -55,6 +63,12 @@ sealed interface Screen : NavKey {
     data object CourseSetting : Screen
     data object CampusLife : Screen
     data class NewsDetail(val url: String) : Screen
+    data class PdfReader(val title: String, val url: String, val backStack: MutableList<NavKey>) :
+        Screen {
+        override fun toString(): String {
+            return "Screen.PdfReader(title='$title', url='$url', backStackSize=${backStack.size})"
+        }
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -93,8 +107,12 @@ fun App() {
             entry(Screen.CourseSetting) {
                 CourseSetting(backStack)
             }
-            entry(Screen.Map) {
-                MapPage(backStack)
+            entry<Screen.Image> { screen ->
+                ImagePage(screen.title, screen.url, screen.backStack)
+            }
+
+            entry<Screen.PdfReader> { screen ->
+                PdfReaderView(screen.title, screen.url, screen.backStack)
             }
             entry<Screen.Score> {
                 ScorePage(backStack)

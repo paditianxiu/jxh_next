@@ -63,8 +63,8 @@ fun ClassListPage(
         topBar = {
             TopAppBar(
                 title = "班级列表", scrollBehavior = scrollBehavior, navigationIcon = {
-                    Spacer(Modifier.width(4.dp))
-                    IconButton(onClick = {
+                    IconButton(
+                        modifier = Modifier.padding(start = 16.dp), onClick = {
                         backStack.removeAt(backStack.lastIndex)
                     }) {
                         Icon(MiuixIcons.Back, contentDescription = "返回")

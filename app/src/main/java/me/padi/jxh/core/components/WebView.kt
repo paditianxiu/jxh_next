@@ -48,7 +48,6 @@ fun WebView(
     webViewState: WebViewState = rememberWebViewState(url, headers),
     onError: (String) -> Unit = { },
     onFinished: (Boolean) -> Unit = { },
-    onLogin: (Boolean) -> Unit = { },
     onCurrentUrl: (String) -> Unit = { },
     onImageClick: (imgUrl: String) -> Unit = { },
     isShowLinearProgressIndicator: Boolean = true,
@@ -66,9 +65,6 @@ fun WebView(
                 onFinished(false)
                 url?.let {
                     onCurrentUrl(it)
-                    if (it.contains("/authserver/login?service=")) {
-                        onLogin(true)
-                    }
                 }
             }
 
@@ -79,8 +75,7 @@ fun WebView(
                     try {
                         val html = view.getHtml()
                         val document = Jsoup.parse(html)
-                        val errorMessage = document.select("div.wp_error_msg span").text()
-                        onError(errorMessage)
+
                     } catch (e: Exception) {
                         showSnackBar(snackBarHostState, "获取网页内容失败：${e.message}")
                     }
@@ -217,7 +212,6 @@ fun WebView(
             onCreated = { webView ->
                 webView.setDefaultSettings()
                 webView.setBackgroundColor(Color.Transparent.toArgb())
-
                 headers["user-agent"]?.let {
                     webView.settings.userAgentString = it
                 }

@@ -129,12 +129,12 @@ fun CoursePage(
     Scaffold(
         topBar = {
             SmallTopAppBar(title = "课程表", navigationIcon = {
-                Spacer(Modifier.width(4.dp))
-                IconButton(onClick = {
-                    if (backStack.isNotEmpty()) {
-                        backStack.removeAt(backStack.lastIndex)
-                    }
-                }) {
+                IconButton(
+                    modifier = Modifier.padding(start = 16.dp), onClick = {
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                    }) {
                     Icon(MiuixIcons.VerticalSplit, contentDescription = "返回")
                 }
             }, actions = {
